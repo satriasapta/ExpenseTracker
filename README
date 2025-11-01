@@ -1,0 +1,5 @@
+tulis perintah di terminal
+di backend :
+npm init -y
+npm i express jsonwebtoken mongoose dotenv cors bcryptjs multer xlsx
+npm i nodemon --save-dev
