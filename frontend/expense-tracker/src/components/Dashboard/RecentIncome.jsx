@@ -4,6 +4,7 @@ import TransactionInfoCard from '../Cards/TransactionInfoCard'
 import moment from 'moment'
 
 const RecentIncome = ({transactions, onSeeMore}) => {
+    console.log("transaksi :" ,transactions);
   return (
     <div className="card">
         <div className="flex items-center justify-between">
@@ -15,7 +16,7 @@ const RecentIncome = ({transactions, onSeeMore}) => {
         </div>
 
         <div className="mt-6">
-            {transactions?.slice(0,5).map((item) => {
+            {transactions?.slice(0,5).map((item) => (
                 <TransactionInfoCard
                 key={item._id}
                 title={item.source}
@@ -25,7 +26,7 @@ const RecentIncome = ({transactions, onSeeMore}) => {
                 type="income"
                 hideDeleteBtn
                 />
-            })}
+            ))}
         </div>
     </div>
   )
