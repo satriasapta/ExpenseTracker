@@ -42,7 +42,7 @@ const AddIncomeForm = ({onAddIncome}) => {
         type="date"
         />
 
-        <div className="">
+        <div className="mt-6">
             <button type='button'
             className='add-btn add-btn-fill'
             onClick={()=>onAddIncome(income)}>Add Income</button>
