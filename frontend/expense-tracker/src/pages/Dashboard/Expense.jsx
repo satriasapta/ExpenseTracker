@@ -7,6 +7,8 @@ import axiosInstance from '../../utils/axiosInstance';
 import ExpenseOverview from '../../components/Expense/ExpenseOverview';
 import Modal from '../../components/Modal';
 import AddExpenseForm from '../../components/Expense/AddExpenseForm';
+import ExpenseList from '../../components/Expense/ExpenseList';
+import DeleteAlert from '../../components/DeleteAlert';
 
 const Expense = () => {
   useUserAuth();
@@ -77,7 +79,7 @@ const Expense = () => {
   //Delete Expense
   const deleteExpense = async (id) => { 
     try {
-      await axiosInstance.delete(API_PATHS.INCOME.DELETE_INCOME(id));
+      await axiosInstance.delete(API_PATHS.EXPENSE.DELETE_EXPENSE(id));
       setOpenDeleteAlert({ show: false, data: null });
       toast.success("Expense details deleted successfully");
       fetchExpenseDetails();
@@ -120,6 +122,17 @@ const Expense = () => {
           onAddExpense={handleAddExpense}
         />
       </Modal>
+
+        <Modal
+          isOpen={openDeleteAlert.show}
+          onClose={() => setOpenDeleteAlert({ show: false, data: null })}
+          title="Delete Expense"
+        >
+          <DeleteAlert  
+            content="Are you sure you want to delete this expense?"
+            onDelete={() => deleteExpense(openDeleteAlert.data)}
+          />
+        </Modal>
     </DashboardLayout>
   )
 }
