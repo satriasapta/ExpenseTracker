@@ -1,8 +1,0 @@
-tulis perintah di terminal
-di backend :
-npm init -y
-npm i express jsonwebtoken mongoose dotenv cors bcryptjs multer xlsx
-npm i nodemon --save-dev
-
-create jwt secret key:
-node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
