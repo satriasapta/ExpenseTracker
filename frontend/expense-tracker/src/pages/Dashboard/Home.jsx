@@ -7,7 +7,7 @@ import { API_PATHS } from '../../utils/apiPath';
 import InfoCard from '../../components/Cards/InfoCard';
 
 import { LuHandCoins, LuWalletMinimal } from 'react-icons/lu';
-import {IoMdCard} from 'react-icons/io';
+import { IoMdCard } from 'react-icons/io';
 import { addThousandsSeparator } from '../../utils/helper';
 import RecentTransactions from '../../components/Dashboard/RecentTransactions';
 import FinanceOverview from '../../components/Dashboard/FinanceOverview';
@@ -41,6 +41,13 @@ const Home = () => {
     }
   };
 
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(amount)
+  };
+
   useEffect(() => {
     fetchDashboardData();
     return () => { };
@@ -53,52 +60,55 @@ const Home = () => {
           <InfoCard
             icon={<IoMdCard />}
             label="Total Balance"
-            value={addThousandsSeparator(dashboardData?.totalBalance || 0)}
+            value={formatCurrency(dashboardData?.totalBalance || 0)}
             color="bg-primary"
           />
+
           <InfoCard
             icon={<LuWalletMinimal />}
             label="Total Income"
-            value={addThousandsSeparator(dashboardData?.totalIncome || 0)}
+            value={formatCurrency(dashboardData?.totalIncome || 0)}
             color="bg-orange-500"
           />
+
           <InfoCard
             icon={<LuHandCoins />}
             label="Total Expense"
-            value={addThousandsSeparator(dashboardData?.totalExpenses || 0)}
+            value={formatCurrency(dashboardData?.totalExpenses || 0)}
             color="bg-red-500"
           />
+
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           <RecentTransactions
-          transactions={dashboardData?.recentTransactions}
-          onSeeMore={() => navigate("/expense")}
+            transactions={dashboardData?.recentTransactions}
+            onSeeMore={() => navigate("/expense")}
           />
 
           <FinanceOverview
-          totalBalance={dashboardData?.totalBalance || 0}
-          totalIncome={dashboardData?.totalIncome || 0}
-          totalExpense={dashboardData?.totalExpenses || 0}
+            totalBalance={dashboardData?.totalBalance || 0}
+            totalIncome={dashboardData?.totalIncome || 0}
+            totalExpense={dashboardData?.totalExpenses || 0}
           />
 
           <ExpenseTransactions
-          transactions={dashboardData?.last30DaysExpenses?.transactions || []}
-          onSeeMore={() => navigate("/expense")}
+            transactions={dashboardData?.last30DaysExpenses?.transactions || []}
+            onSeeMore={() => navigate("/expense")}
           />
 
           <Last30DaysExpenses
-          data={dashboardData?.last30DaysExpenses?.transactions || []}
+            data={dashboardData?.last30DaysExpenses?.transactions || []}
           />
 
           <RecentIncomeWithChart
-          data={dashboardData?.last60DaysIncome?.transactions?.slice(0,4) || []}
-          totalIncome={dashboardData?.totalIncome || 0}
+            data={dashboardData?.last60DaysIncome?.transactions?.slice(0, 4) || []}
+            totalIncome={dashboardData?.totalIncome || 0}
           />
 
           <RecentIncome
-          transactions={dashboardData?.last60DaysIncome?.transactions || []}
-          onSeeMore={() => navigate("/income")}
+            transactions={dashboardData?.last60DaysIncome?.transactions || []}
+            onSeeMore={() => navigate("/income")}
           />
 
         </div>

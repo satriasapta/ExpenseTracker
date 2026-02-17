@@ -1,14 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa6';
 
 const Input = ({ value, onChange, placeholder, label, type }) => {
-    const { showPassword, setShowPassword } = React.useState(false);
+    const [ showPassword, setShowPassword ] = useState(false);
 
     const toggleShowPassword = () => {
         setShowPassword(!showPassword);
     };
     return (
-        <div>
+        <div className="mb-4">
             <label className='text-[13px] text-slate-800'>{label}</label>
             <div className="input-box">
                 <input type={type == 'password' ? (showPassword ? 'text' : 'password') : type}

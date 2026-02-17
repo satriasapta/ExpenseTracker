@@ -70,6 +70,7 @@ const Login = () => {
           />
 
           <Input
+          className='mb-4'
             value={password}
             onChange={({ target }) => setPassword(target.value)}
             label="Password"
