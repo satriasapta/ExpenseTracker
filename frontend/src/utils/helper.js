@@ -6,7 +6,7 @@ export const validateEmail = (email) => {
 };
 
 export const getInitials = (name) => {
-    if(!name) return "";
+    if (!name) return "";
 
     const words = name.split(" ");
     let initials = "";
@@ -19,43 +19,70 @@ export const getInitials = (name) => {
 }
 
 export const addThousandsSeparator = (num) => {
-    if(num == null || isNaN(num)) return "";
+    if (num == null || isNaN(num)) return "";
 
     const [integerPart, fractionalPart] = num.toString().split('.');
     const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
     return fractionalPart
-    ? `${formattedInteger}.${fractionalPart}`
-    : formattedInteger;
+        ? `${formattedInteger}.${fractionalPart}`
+        : formattedInteger;
 }
 
 export const prepareExpenseBarChartData = (data = []) => {
-    const chartData = data.map((item) => ({
-        month: moment(item?.date).format("Do MMM"),
-        category: item?.category,
-        amount: item?.amount,
-    }));
-    return chartData;
+    const groupedData = data.reduce((acc, item) => {
+        const category = item?.category || "Other";
+        if (!acc[category]) {
+            acc[category] = { label: category, amount: 0, category };
+        }
+        acc[category].amount += item.amount;
+        return acc;
+    }, {});
+
+    return Object.values(groupedData);
 }
 
 export const prepareIncomeBarChartData = (data = []) => {
-    const sortedData = [...data].sort((a,b) => new Date(a.date) - new Date(b.date));
+    const groupedData = data.reduce((acc, item) => {
+        const source = item?.source || "Other";
+        if (!acc[source]) {
+            acc[source] = { label: source, amount: 0, source };
+        }
+        acc[source].amount += item.amount;
+        return acc;
+    }, {});
 
-    const chartData = sortedData.map((item) => ({
-        month: moment(item?.date).format("Do MMM"),
-        amount: item?.amount,
-        source: item?.source,
-    }));
-    return chartData;
+    return Object.values(groupedData);
 }
 
-export const prepareExpenseLineChartData = (data = []) => {
-    const sortedData = [...data].sort((a,b) => new Date(a.date) - new Date(b.date));
+export const prepareDailyChartData = (data = []) => {
+    const sortedData = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    const chartData = sortedData.map((item) => ({
-        month: moment(item?.date).format("Do MMM"),
-        amount: item?.amount,
-        category: item?.category,
-    }));
-    return chartData;
+    const groupedData = sortedData.reduce((acc, item) => {
+        const date = moment(item?.date).format("Do MMM");
+        if (!acc[date]) {
+            acc[date] = { label: date, amount: 0 };
+        }
+        acc[date].amount += item.amount;
+        return acc;
+    }, {});
+
+    return Object.values(groupedData);
+}
+
+export const prepareYearlyChartData = (data = []) => {
+    const months = moment.monthsShort(); // ["Jan", "Feb", ...]
+    const groupedData = months.reduce((acc, month) => {
+        acc[month] = { label: month, amount: 0 };
+        return acc;
+    }, {});
+
+    data.forEach(item => {
+        const month = moment(item?.date).format("MMM");
+        if (groupedData[month]) {
+            groupedData[month].amount += item.amount;
+        }
+    });
+
+    return Object.values(groupedData);
 }

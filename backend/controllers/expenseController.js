@@ -31,9 +31,22 @@ exports.addExpense = async (req, res) => {
 //Get All Expense Source
 exports.getAllExpense = async (req, res) => {
     const userId = req.user.id;
+    const { month, year } = req.query;
 
     try {
-        const expense = await Expense.find({ userId }).sort({ createdAt: -1 });
+        let query = { userId };
+
+        if (month !== undefined && month !== "" && month !== null) {
+            const startDate = new Date(year, month, 1);
+            const endDate = new Date(year, parseInt(month) + 1, 0, 23, 59, 59, 999);
+            query.date = { $gte: startDate, $lte: endDate };
+        } else if (year !== undefined) {
+            const startDate = new Date(year, 0, 1);
+            const endDate = new Date(year, 11, 31, 23, 59, 59, 999);
+            query.date = { $gte: startDate, $lte: endDate };
+        }
+
+        const expense = await Expense.find(query).sort({ date: -1 });
         res.json(expense);
     } catch (error) {
         res.status(500).json({ message: "Server Error" });
@@ -49,7 +62,7 @@ exports.deleteExpense = async (req, res) => {
     }
 }
 //Download Excel
-exports.downloadExpenseExcel = async (req, res) => { 
+exports.downloadExpenseExcel = async (req, res) => {
     const userId = req.user.id;
 
     try {

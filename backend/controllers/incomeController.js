@@ -31,9 +31,22 @@ exports.addIncome = async (req, res) => {
 //Get All Income Source
 exports.getAllIncome = async (req, res) => {
     const userId = req.user.id;
+    const { month, year } = req.query;
 
     try {
-        const income = await Income.find({ userId }).sort({ createdAt: -1 });
+        let query = { userId };
+
+        if (month !== undefined && month !== "" && month !== null) {
+            const startDate = new Date(year, month, 1);
+            const endDate = new Date(year, parseInt(month) + 1, 0, 23, 59, 59, 999);
+            query.date = { $gte: startDate, $lte: endDate };
+        } else if (year !== undefined) {
+            const startDate = new Date(year, 0, 1);
+            const endDate = new Date(year, 11, 31, 23, 59, 59, 999);
+            query.date = { $gte: startDate, $lte: endDate };
+        }
+
+        const income = await Income.find(query).sort({ date: -1 });
         res.json(income);
     } catch (error) {
         res.status(500).json({ message: "Server Error" });
@@ -49,7 +62,7 @@ exports.deleteIncome = async (req, res) => {
     }
 }
 //Download Excel
-exports.downloadIncomeExcel = async (req, res) => { 
+exports.downloadIncomeExcel = async (req, res) => {
     const userId = req.user.id;
 
     try {

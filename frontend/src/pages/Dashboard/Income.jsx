@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 import IncomeList from '../../components/Income/IncomeList';
 import DeleteAlert from '../../components/DeleteAlert';
 import { useUserAuth } from '../../hooks/useUserAuth';
+import MonthYearFilter from '../../components/Dashboard/MonthYearFilter';
 
 const Income = () => {
   useUserAuth();
@@ -20,7 +21,10 @@ const Income = () => {
     data: null
   });
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
-  console.log("HALAMAN INCOME INI DIRUN");
+
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [viewType, setViewType] = useState("monthly");
 
   //Get All Income Details
   const fetchIncomeDetails = async () => {
@@ -29,8 +33,14 @@ const Income = () => {
     setLoading(true);
 
     try {
+      const params = { year: selectedYear };
+      if (viewType === "monthly") {
+        params.month = selectedMonth;
+      }
+
       const response = await axiosInstance.get(
-        `${API_PATHS.INCOME.GET_ALL_INCOME}`
+        `${API_PATHS.INCOME.GET_ALL_INCOME}`,
+        { params }
       );
 
       if (response.data) {
@@ -78,7 +88,7 @@ const Income = () => {
   };
 
   //Delete Income
-  const deleteIncome = async (id) => { 
+  const deleteIncome = async (id) => {
     try {
       await axiosInstance.delete(API_PATHS.INCOME.DELETE_INCOME(id));
       setOpenDeleteAlert({ show: false, data: null });
@@ -105,25 +115,35 @@ const Income = () => {
       link.click();
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (error) { 
+    } catch (error) {
       console.error("Error downloading income details:", error);
       toast.error("Failed to download income details. Please try again.");
     }
-   };
+  };
 
   useEffect(() => {
     fetchIncomeDetails();
 
     return () => { };
-  }, []);
+  }, [selectedMonth, selectedYear, viewType]);
   return (
     <DashboardLayout activeMenu="Income">
       <div className="my-5 mx-auto">
+        <MonthYearFilter
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+          onMonthChange={setSelectedMonth}
+          onYearChange={setSelectedYear}
+          viewType={viewType}
+          onViewTypeChange={setViewType}
+        />
         <div className="grid grid-cols-1 gap-6">
           <div className="">
             <IncomeOverview
               transactions={incomeData}
-              onAddIncome={() => setOpenAddIncomeModal(true)} />
+              onAddIncome={() => setOpenAddIncomeModal(true)}
+              viewType={viewType}
+            />
           </div>
 
           <IncomeList
@@ -141,7 +161,10 @@ const Income = () => {
           onClose={() => setOpenAddIncomeModal(false)}
           title="Add Income"
         >
-          <AddIncomeForm onAddIncome={handleAddIncome} />
+          <AddIncomeForm
+            onAddIncome={handleAddIncome}
+            sources={[...new Set(incomeData.map(item => item.source))].filter(Boolean)}
+          />
 
         </Modal>
 

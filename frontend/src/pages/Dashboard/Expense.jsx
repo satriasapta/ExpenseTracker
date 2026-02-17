@@ -9,6 +9,7 @@ import Modal from '../../components/Modal';
 import AddExpenseForm from '../../components/Expense/AddExpenseForm';
 import ExpenseList from '../../components/Expense/ExpenseList';
 import DeleteAlert from '../../components/DeleteAlert';
+import MonthYearFilter from '../../components/Dashboard/MonthYearFilter';
 
 const Expense = () => {
   useUserAuth();
@@ -21,6 +22,10 @@ const Expense = () => {
   });
   const [openAddExpenseModal, setOpenAddExpenseModal] = useState(false);
 
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [viewType, setViewType] = useState("monthly");
+
   //Get All Expense Details
   const fetchExpenseDetails = async () => {
     if (loading) return;
@@ -28,8 +33,14 @@ const Expense = () => {
     setLoading(true);
 
     try {
+      const params = { year: selectedYear };
+      if (viewType === "monthly") {
+        params.month = selectedMonth;
+      }
+
       const response = await axiosInstance.get(
-        `${API_PATHS.EXPENSE.GET_ALL_EXPENSE}`
+        `${API_PATHS.EXPENSE.GET_ALL_EXPENSE}`,
+        { params }
       );
 
       if (response.data) {
@@ -77,7 +88,7 @@ const Expense = () => {
   };
 
   //Delete Expense
-  const deleteExpense = async (id) => { 
+  const deleteExpense = async (id) => {
     try {
       await axiosInstance.delete(API_PATHS.EXPENSE.DELETE_EXPENSE(id));
       setOpenDeleteAlert({ show: false, data: null });
@@ -89,7 +100,7 @@ const Expense = () => {
   };
 
   //handle download expense details
-  const handleDownloadExpenseDetails = async () => { 
+  const handleDownloadExpenseDetails = async () => {
     try {
       const response = await axiosInstance.get(API_PATHS.EXPENSE.DOWNLOAD_EXPENSE, {
         responseType: 'blob',
@@ -104,7 +115,7 @@ const Expense = () => {
       link.click();
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (error) { 
+    } catch (error) {
       console.error("Error downloading expense details:", error);
       toast.error("Failed to download expense details. Please try again.");
     }
@@ -112,17 +123,23 @@ const Expense = () => {
 
   useEffect(() => {
     fetchExpenseDetails();
-    return () => {
-
-    };
-  }, []);
+  }, [selectedMonth, selectedYear, viewType]);
   return (
     <DashboardLayout activeMenu="Expense">
       <div className="my-5 mx-auto">
+        <MonthYearFilter
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+          onMonthChange={setSelectedMonth}
+          onYearChange={setSelectedYear}
+          viewType={viewType}
+          onViewTypeChange={setViewType}
+        />
         <div className="grid grid-cols-1 gap-6">
           <ExpenseOverview
             transactions={expenseData}
             onAddExpense={() => setOpenAddExpenseModal(true)}
+            viewType={viewType}
           />
         </div>
       </div>
@@ -139,19 +156,20 @@ const Expense = () => {
       >
         <AddExpenseForm
           onAddExpense={handleAddExpense}
+          categories={[...new Set(expenseData.map(item => item.category))].filter(Boolean)}
         />
       </Modal>
 
-        <Modal
-          isOpen={openDeleteAlert.show}
-          onClose={() => setOpenDeleteAlert({ show: false, data: null })}
-          title="Delete Expense"
-        >
-          <DeleteAlert  
-            content="Are you sure you want to delete this expense?"
-            onDelete={() => deleteExpense(openDeleteAlert.data)}
-          />
-        </Modal>
+      <Modal
+        isOpen={openDeleteAlert.show}
+        onClose={() => setOpenDeleteAlert({ show: false, data: null })}
+        title="Delete Expense"
+      >
+        <DeleteAlert
+          content="Are you sure you want to delete this expense?"
+          onDelete={() => deleteExpense(openDeleteAlert.data)}
+        />
+      </Modal>
     </DashboardLayout>
   )
 }
