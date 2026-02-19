@@ -68,11 +68,11 @@ exports.loginUser = async (req, res) => {
 };
 
 //Get User Info
-exports.getUserInfo = async (req, res) => { 
+exports.getUserInfo = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
 
-        if(!user) {
+        if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
@@ -81,5 +81,38 @@ exports.getUserInfo = async (req, res) => {
         res
             .status(500)
             .json({ message: "Error getting user info", error: err.message });
+    }
+};
+
+//Update Profile
+exports.updateProfile = async (req, res) => {
+    const { fullName, profileImageUrl, password } = req.body || {};
+
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (fullName) user.fullName = fullName;
+        if (profileImageUrl) user.profileImageUrl = profileImageUrl;
+        if (password) user.password = password;
+
+        await user.save();
+
+        res.status(200).json({
+            message: 'Profile updated successfully',
+            user: {
+                id: user._id,
+                fullName: user.fullName,
+                email: user.email,
+                profileImageUrl: user.profileImageUrl,
+            }
+        });
+    } catch (err) {
+        res
+            .status(500)
+            .json({ message: "Error updating profile", error: err.message });
     }
 };
