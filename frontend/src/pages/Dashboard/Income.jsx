@@ -10,6 +10,7 @@ import IncomeList from '../../components/Income/IncomeList';
 import DeleteAlert from '../../components/DeleteAlert';
 import { useUserAuth } from '../../hooks/useUserAuth';
 import MonthYearFilter from '../../components/Dashboard/MonthYearFilter';
+import ExportDataCard from '../../components/Cards/ExportDataCard';
 
 const Income = () => {
   useUserAuth();
@@ -102,7 +103,13 @@ const Income = () => {
   //handle download income details
   const handleDownloadIncomeDetails = async () => {
     try {
+      const params = {
+        year: selectedYear,
+        month: viewType === "monthly" ? selectedMonth : undefined
+      };
+
       const response = await axiosInstance.get(API_PATHS.INCOME.DOWNLOAD_INCOME, {
+        params,
         responseType: 'blob',
       });
 
@@ -152,6 +159,11 @@ const Income = () => {
               setOpenDeleteAlert({ show: true, data: id });
             }}
             onDownload={handleDownloadIncomeDetails}
+          />
+
+          <ExportDataCard
+            type="Income"
+            onExport={handleDownloadIncomeDetails}
           />
 
         </div>

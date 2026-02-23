@@ -10,6 +10,7 @@ import AddExpenseForm from '../../components/Expense/AddExpenseForm';
 import ExpenseList from '../../components/Expense/ExpenseList';
 import DeleteAlert from '../../components/DeleteAlert';
 import MonthYearFilter from '../../components/Dashboard/MonthYearFilter';
+import ExportDataCard from '../../components/Cards/ExportDataCard';
 
 const Expense = () => {
   useUserAuth();
@@ -102,7 +103,13 @@ const Expense = () => {
   //handle download expense details
   const handleDownloadExpenseDetails = async () => {
     try {
+      const params = {
+        year: selectedYear,
+        month: viewType === "monthly" ? selectedMonth : undefined
+      };
+
       const response = await axiosInstance.get(API_PATHS.EXPENSE.DOWNLOAD_EXPENSE, {
+        params,
         responseType: 'blob',
       });
 
@@ -149,6 +156,13 @@ const Expense = () => {
         onDelete={(id) => setOpenDeleteAlert({ show: true, data: id })}
         onDownload={handleDownloadExpenseDetails}
       />
+
+      <div className="mt-6 mb-10">
+        <ExportDataCard
+          type="Expense"
+          onExport={handleDownloadExpenseDetails}
+        />
+      </div>
       <Modal
         isOpen={openAddExpenseModal}
         onClose={() => setOpenAddExpenseModal(false)}

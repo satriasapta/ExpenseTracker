@@ -3,15 +3,11 @@ import React from 'react'
 import { LuDownload } from 'react-icons/lu'
 import TransactionInfoCard from '../Cards/TransactionInfoCard'
 
-const IncomeList = ({ transactions, onDelete, onDownload }) => {
+const IncomeList = ({ transactions, onDelete }) => {
     return (
         <div className="card">
             <div className="flex items-center justify-between">
-                <h5 className='text-lg'>Income Sources</h5>
-
-                <button className='card-btn' onClick={onDownload}>
-                    <LuDownload className='text-base' /> Download
-                </button>
+                <h5 className='text-lg font-medium text-gray-800'>Income Sources</h5>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2">
                 {transactions?.map((income) => (
